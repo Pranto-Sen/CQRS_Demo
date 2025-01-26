@@ -20,7 +20,6 @@ namespace CQRS_Demo.Controllers
 			_mediator = mediator;
 		}
 
-		// GET: api/Student
 		[HttpGet]
 		public async Task<ActionResult<List<StudentDetails>>> GetStudents()
 		{
@@ -28,6 +27,20 @@ namespace CQRS_Demo.Controllers
 			{
 				var students = await _mediator.Send(new GetStudentListQuery());
 				return Ok(students);
+			}
+			catch (Exception ex)
+			{
+				return NotFound(new { Message = ex.Message });
+			}
+		}
+
+		[HttpGet("{id}")]
+		public async Task<ActionResult<StudentDetails>> GetStudentById(int id)
+		{
+			try
+			{
+				var student = await _mediator.Send(new GetStudentByIdQuery(id));
+				return Ok(student);
 			}
 			catch (Exception ex)
 			{
@@ -48,6 +61,41 @@ namespace CQRS_Demo.Controllers
 				var studentId = await _mediator.Send(new CreateStudentCommand(student));
 
 				return Ok();
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { Message = ex.Message });
+			}
+		}
+
+		[HttpPut]
+		public async Task<ActionResult> UpdateStudent([FromBody] StudentDetails student)
+		{
+			try
+			{
+				if (student == null)
+				{
+					return BadRequest("Student details are required.");
+				}
+
+				var studentId = await _mediator.Send(new UpdateStudentCommand(student));
+
+				return Ok("Student Update Successfuly");
+			}
+			catch (Exception ex)
+			{
+				return BadRequest(new { Message = ex.Message });
+			}
+		}
+
+		[HttpDelete("{id}")]
+		public async Task<ActionResult> DeleteStudent(int id)
+		{
+			try
+			{
+				await _mediator.Send(new DeleteStudentCommand(id));
+
+				return Ok("Student Delete Successfully");
 			}
 			catch (Exception ex)
 			{

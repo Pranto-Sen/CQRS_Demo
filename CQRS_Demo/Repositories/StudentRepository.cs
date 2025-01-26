@@ -14,9 +14,14 @@ namespace CQRS_Demo.Repositories
 			_connectionstring = config.GetConnectionString("DefaultConnection");
 		}
 
-		public Task<StudentDetails> GetStudentByIdAsync(int Id)
+		public async Task<StudentDetails> GetStudentByIdAsync(int id)
 		{
-			throw new NotImplementedException();
+			using (IDbConnection _dbConnection = new SqlConnection(_connectionstring))
+			{
+				
+				var student = await _dbConnection.QueryFirstOrDefaultAsync<StudentDetails>("GetStudentById", new { Id = id},  commandType: CommandType.StoredProcedure);
+				return student;
+			}
 		}
 
 		public async Task<List<StudentDetails>> GetStudentListAsync()
@@ -50,16 +55,47 @@ namespace CQRS_Demo.Repositories
 			
 		}
 
-		public Task<int> DeleteStudentAsync(int Id)
+		public async Task<int> UpdateStudentAsync(StudentDetails studentDetails)
 		{
-			throw new NotImplementedException();
+			using (IDbConnection _dbConnection = new SqlConnection(_connectionstring))
+			{
+
+				var existingStudent = await _dbConnection.QueryFirstOrDefaultAsync<StudentDetails>("GetStudentById", new { Id = studentDetails.Id }, commandType: CommandType.StoredProcedure);
+				if (existingStudent == null)
+				{
+					return -1;
+				}
+				var parameters = new DynamicParameters();
+				parameters.Add("@Id", studentDetails.Id);
+				parameters.Add("@Name", studentDetails.Name);
+				parameters.Add("@Email", studentDetails.Email);
+				parameters.Add("@Address", studentDetails.Address);
+				parameters.Add("@Age", studentDetails.Age);
+
+
+				var res = await _dbConnection.ExecuteAsync("UpdateStudent", parameters, commandType: CommandType.StoredProcedure);
+
+				
+				return res;
+			}
 		}
 
-		
-
-		public Task<int> UpdateStudentAsync(StudentDetails studentDetails)
+		public async Task<int> DeleteStudentAsync(int Id)
 		{
-			throw new NotImplementedException();
+			using (IDbConnection _dbConnection = new SqlConnection(_connectionstring))
+			{
+
+				var existingStudent = await _dbConnection.QueryFirstOrDefaultAsync<StudentDetails>("GetStudentById", new { Id = Id }, commandType: CommandType.StoredProcedure);
+				if (existingStudent == null)
+				{
+					return -1;
+				}
+				var res = await _dbConnection.ExecuteAsync("DeleteStudent", new { Id = Id }, commandType: CommandType.StoredProcedure);
+				return res;
+			}
+
 		}
+
 	}
 }
+

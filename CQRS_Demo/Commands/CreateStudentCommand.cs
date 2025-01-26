@@ -4,14 +4,6 @@ using System;
 
 namespace CQRS_Demo.Commands
 {
-	public class CreateStudentCommand : IRequest<StudentDetails>
-	{
-		public StudentDetails StudentDetails { get; set; }
-
-		public CreateStudentCommand(StudentDetails studentDetails)
-		{
-			StudentDetails = studentDetails;
-		}
-	}
+	public record CreateStudentCommand(StudentDetails StudentDetails) : IRequest<StudentDetails>;
 
 }

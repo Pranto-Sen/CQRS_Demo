@@ -3,8 +3,6 @@ using MediatR;
 
 namespace CQRS_Demo.Queries
 {
-	public class GetStudentByIdQuery:IRequest<StudentDetails>
-	{
-		public int Id { get; set; }
-	}
+	public record GetStudentByIdQuery(int id):IRequest<StudentDetails>;
+	
 }

@@ -4,8 +4,6 @@ using System;
 
 namespace CQRS_Demo.Queries
 {
-	public class GetStudentListQuery : IRequest<List<StudentDetails>>
-	{
-	}
+	public record GetStudentListQuery : IRequest<List<StudentDetails>>;
 
 }
